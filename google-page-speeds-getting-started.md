@@ -85,7 +85,7 @@ One way to do this is to store the parameters for the requests (`URLs` and `devi
 #### Load the CSV
 
 ```python
-def load_urls(self, url_file):
+def load_urls(url_file):
     '''
     Import urls.
     '''
@@ -135,7 +135,7 @@ def get_contents_obj(df):
 ## Reading the response
 Before applying any filters or formatting on the data, we can first store the full response object for future use with a function like this:
 ```python
-def save_all_contents_to_file(self, contents):
+def save_all_contents_to_file(contents):
     with open('data/{}-response.json'.format(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")), 'w') as outfile:
         json.dump(contents, outfile, indent=4)
 ```
