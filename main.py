@@ -5,7 +5,7 @@ import time
 import psycopg2
 import json
 from RequestPageSpeeds import APIResponse
-from ResponsePostProcessing import ResponseTable
+from PostProcessing import ResponseTable
 @click.command()
 @click.option(
     '--config-file',

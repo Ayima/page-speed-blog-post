@@ -25,7 +25,6 @@ There are a few steps you will need to follow before running a Python script tha
     Unlike some other Google APIs, you don't need an API key to get started with this one.
 
 * ### Make sure you have [Python 3](https://www.python.org/downloads/) installed
-    You'll also need to setup your [mac](https://sourabhbajaj.com/mac-setup/)/[windows](TODO) development environment if you haven't already
 
 * ### Python client library setup
     In order to use the API's Python client library to acccess the API, you will need to run this command in the terminal:
