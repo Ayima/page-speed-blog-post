@@ -16,11 +16,8 @@ class APIResponse:
         self.contents_obj = {}
 
         self.contents_obj['mobile'] = {}
-        self.contents_obj['desktop'] = {}
 
         self.url_list, self.df_urls = self.load_urls(url_file)
-
-        # self.save_contents_to_file(self.contents_obj)
 
 
     def get_contents_obj(self):
@@ -29,7 +26,6 @@ class APIResponse:
         '''
         
         for i in tqdm(range(0, len(self.df_urls))):
-        # for i in tqdm(range(0, 2)): # TODO: FOR TESTING PURPOSES! Quicker.
             success = False
 
             for j in range(0, 10):
@@ -88,9 +84,9 @@ class APIResponse:
         return url_list, df_urls
 
     def save_contents_cummulatively(self, contents):
-        with open('data/{}-cummulative_response.json'.format(datetime.now().strftime("%Y-%m-%d")), 'w') as outfile:
+        with open('{}-cummulative_response.json'.format(datetime.now().strftime("%Y-%m-%d")), 'w') as outfile:
             json.dump(contents, outfile, indent=4)
 
     def save_contents_to_file(self, contents):
-        with open('data/{}-response.json'.format(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")), 'w') as outfile:
+        with open('{}-response.json'.format(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")), 'w') as outfile:
             json.dump(contents, outfile, indent=4)
