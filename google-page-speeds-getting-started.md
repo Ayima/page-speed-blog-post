@@ -147,8 +147,6 @@ As there are two different sources of page speed data, we will be focusing on ju
 - `Final URL`
 - `First Contentful Paint` (ms)
 - `First Contentful Paint` (proportions of slow, average, fast)
-- `First Input Delay` (ms)
-- `First Input Delay` (proportions of slow, average, fast)
 
 
 
@@ -174,11 +172,6 @@ for (url, i) in zip(
     response_object['mobile'][url]['loadingExperience']['metrics']['FIRST_CONTENTFUL_PAINT_MS']['percentile']
     df_field_responses.loc[i, 'FCP_category'] =
     response_object['mobile'][url]['loadingExperience']['metrics']['FIRST_CONTENTFUL_PAINT_MS']['category']
-    # Loading experience: First Input Delay (ms)
-    df_field_responses.loc[i, 'FID_ms'] =
-    response_object['mobile'][url]['loadingExperience']['metrics']['FIRST_INPUT_DELAY_MS']['percentile']
-    df_field_responses.loc[i, 'FID_category'] =
-    response_object['mobile'][url]['loadingExperience']['metrics']['FIRST_INPUT_DELAY_MS']['category']
 
     # Proportions: First Contentful Paint
     df_field_responses.loc[i, 'FCP_fast'] =
@@ -187,22 +180,24 @@ for (url, i) in zip(
     response_object['mobile'][url]['loadingExperience']['metrics']['FIRST_CONTENTFUL_PAINT_MS']['distributions'][1]['proportion']
     df_field_responses.loc[i, 'FCP_slow'] =
     response_object['mobile'][url]['loadingExperience']['metrics']['FIRST_CONTENTFUL_PAINT_MS']['distributions'][2]['proportion']
-    # Proportions: First Contentful Paint
-    df_field_responses.loc[i, 'FID_fast'] =
-    response_object['mobile'][url]['loadingExperience']['metrics']['FIRST_INPUT_DELAY_MS']['distributions'][0]['proportion']
-    df_field_responses.loc[i, 'FID_avg'] =
-    response_object['mobile'][url]['loadingExperience']['metrics']['FIRST_INPUT_DELAY_MS']['distributions'][1]['proportion']
-    df_field_responses.loc[i, 'FID_slow'] =
-    response_object['mobile'][url]['loadingExperience']['metrics']['FIRST_INPUT_DELAY_MS']['distributions'][2]['proportion']
 ```
 Then to store the dataframe, `df_field_responses`, in a CSV:
 
 ```python
-df_field_responses.to_csv('filtered_responses.csv', index=False)
+df_field_responses.to_csv('page_speeds_filtered_responses.csv', index=False)
 ```
 
 
-## 
+## Running the scripts on GitHub
+The [repository](https://github.com/Ayima/page-speed-blog-post) on GitHub contains instructions on how to run the files, but here is a quick breakdown.
+
+1. Before running the example scripts on GitHub, you will need to clone the repository.
+2. Then create a CSV file with the URLs to query.
+3. Fill in the config file with the URL file name.
+4. Command to run the scripts:
+
+    ```python main.py --config-file config.json```
+    
 
 ## Things to keep in mind:
 * #### The API has a limit as to how many requests you can make per day and per second.
@@ -216,6 +211,6 @@ ____________
 
 Hopefully after reading this guide you're able to get up and running with some basic querying of the Google Page Speed Insights API.
 
-**Source Code:** You can find the GitHub project with an example script to run [here](TODO).
+**Source Code:** You can find the GitHub project with an example script to run [here](https://github.com/Ayima/page-speed-blog-post).
 
 Feel free to reach us on twitter [@ayima](https://twitter.com/ayima) with any questions or if you run into any problems! Thanks for reading!
