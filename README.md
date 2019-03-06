@@ -1,5 +1,6 @@
 # Getting Started With Google Page Speed Insights API
 This contains an example of how to query URLs using Google Page Speed Insights API.
+Please read the full blog post [here]().
 
 ## To run the scripts:
 1. Clone this repository.
