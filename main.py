@@ -22,13 +22,10 @@ def main(config_file):
     my_reponse = APIResponse(config_data['url_file'])
     response = my_reponse.get_contents_obj()
 
-    # 2. Select relevant fields of response
-    
-
-    # 3. Get response object in uploadable table
+    # 2. Select relevant fields of response and store in table
     post_processing = ResponseTable(response)
     field_table_to_upload = post_processing.create_field_data_table()
-    lab_table_to_upload = post_processing.create_lab_data_table()
 
+    field_table_to_upload.to_csv('')
 if __name__ == '__main__':
     main()

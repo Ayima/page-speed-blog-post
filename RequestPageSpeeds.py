@@ -49,8 +49,6 @@ class APIResponse:
                     # Insert page type for that url into full contents
                     self.contents_obj[device_type][url]['page_type'] = page_type
 
-                    self.save_contents_cummulatively(self.contents_obj)
-
                     success = True
 
                 except Exception as e:
