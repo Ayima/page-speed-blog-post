@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import requests as re
 import urllib.request
+import urllib.parse
 import click
 import json
 import time
@@ -34,12 +35,14 @@ class APIResponse:
                     print('Try #:', j)
 
                     url = self.df_urls.iloc[i]['URL']
+                    escaped_url = urllib.parse.quote(url)
+
                     device_type = self.df_urls.iloc[i]['device_type']
                     page_type = self.df_urls.iloc[i]['page_type']
 
                     contents = urllib.request.urlopen(
                         'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={}&strategy={}'\
-                        .format(url, device_type)
+                        .format(escaped_url, device_type)
                     ).read().decode('UTF-8')
 
                     contents_json = json.loads(contents)

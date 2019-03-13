@@ -33,22 +33,44 @@ class ResponseTable:
                 self.response_object['mobile'].keys(),
                 range(0, len(self.response_object['mobile'].keys()))
             ):
-        
-                # --MOBILE--:
-                # Fill urls
-                self.df_field_responses.loc[i, 'requested_url'] = self.response_object['mobile'][url]['lighthouseResult']['requestedUrl']
-                self.df_field_responses.loc[i, 'final_url'] = self.response_object['mobile'][url]['lighthouseResult']['finalUrl']
+                try:
+                    print('Trying to insert response for url:', url)
 
-                # Fill device type
-                self.df_field_responses.loc[i, 'device_type'] = 'mobile'
+                    # We reuse this below when selecting data from the response
+                    fcp_loading = self.response_object['mobile'][url]['loadingExperience']['metrics']['FIRST_CONTENTFUL_PAINT_MS']
 
-                # Fill loading experience
-                self.df_field_responses.loc[i, 'first_contentful_paint_ms'] = self.response_object['mobile'][url]['loadingExperience']['metrics']['FIRST_CONTENTFUL_PAINT_MS']['percentile']
-                self.df_field_responses.loc[i, 'first_contentful_paint_cat'] = self.response_object['mobile'][url]['loadingExperience']['metrics']['FIRST_CONTENTFUL_PAINT_MS']['category']
+                    # --MOBILE--:
+                    # Fill urls
+                    self.df_field_responses.loc[i, 'requested_url'] = \
+                        self.response_object['mobile'][url]['lighthouseResult']['requestedUrl']
+                    self.df_field_responses.loc[i, 'final_url'] =\
+                        self.response_object['mobile'][url]['lighthouseResult']['finalUrl']
 
-                # Fill proportions
-                self.df_field_responses.loc[i, 'pct_first_contentful_paint_fast'] = self.response_object['mobile'][url]['loadingExperience']['metrics']['FIRST_CONTENTFUL_PAINT_MS']['distributions'][0]['proportion']
-                self.df_field_responses.loc[i, 'pct_first_contentful_paint_average'] = self.response_object['mobile'][url]['loadingExperience']['metrics']['FIRST_CONTENTFUL_PAINT_MS']['distributions'][1]['proportion']
-                self.df_field_responses.loc[i, 'pct_first_contentful_paint_slow'] = self.response_object['mobile'][url]['loadingExperience']['metrics']['FIRST_CONTENTFUL_PAINT_MS']['distributions'][2]['proportion']
+                    # Fill device type
+                    self.df_field_responses.loc[i, 'device_type'] = 'mobile'
+
+                    # Fill loading experience
+                    self.df_field_responses.loc[i, 'first_contentful_paint_ms'] = \
+                        fcp_loading['percentile']
+                    self.df_field_responses.loc[i, 'first_contentful_paint_cat'] = \
+                        fcp_loading['category']
+
+                    # Fill proportions
+                    self.df_field_responses.loc[i, 'pct_first_contentful_paint_fast'] = \
+                        fcp_loading['distributions'][0]['proportion']
+                    self.df_field_responses.loc[i, 'pct_first_contentful_paint_average'] = \
+                        fcp_loading['distributions'][1]['proportion']
+                    self.df_field_responses.loc[i, 'pct_first_contentful_paint_slow'] = \
+                        fcp_loading['distributions'][2]['proportion']
+
+                    print('Inserted for row {}: {}'.format(i, self.df_field_responses.loc[i]))
+
+                except Exception as e:
+                    print('Error:', e)
+                    print('Filling row with Error for row: {}; url: {}'.format(i, url))
+
+                    # Fill in 'Error' for row if a field couldn't be found
+                    self.df_field_responses.loc[i] = \
+                        ['Error' for i in range(0, len(self.df_field_responses.columns))]
 
             return self.df_field_responses.reset_index(drop=True)

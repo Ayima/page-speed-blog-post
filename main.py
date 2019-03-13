@@ -26,6 +26,6 @@ def main(config_file):
     post_processing = ResponseTable(response)
     field_table_to_upload = post_processing.create_field_data_table()
 
-    field_table_to_upload.to_csv('')
+    field_table_to_upload.to_csv('response_dataframe.csv', index=False)
 if __name__ == '__main__':
     main()
