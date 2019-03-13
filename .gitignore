@@ -1,3 +1,4 @@
 *.json
 *.csv
 *.txt
+database_upload_scripts/*
