@@ -1,0 +1,229 @@
+Page speed is one of the biggest indicators of how long someone will spend on your site. Slow loading pages can lead to higher bounce rates, lower conversion rates, and hence, lower revenue.
+
+To get some insight into whether load times may be affecting your audience retention and conversion, the <a href="https://developers.google.com/speed/pagespeed/insights/" target="_blank" rel="noopener">Google's Page Speed Insights tool</a> is great place to start.
+<h2>What's so great about the Page Speed Insights API?</h2>
+With this tool, you can plug in a URL and receive a summary of its performance. This is great for sampling a handful of URLs, but what if you have a large website and want to see a comprehensive overview of performance across multiple sections and page types?
+
+This is where the API comes in. Google's Page Speed Insights API gives us the opportunity to analyze performance for many pages and log the results, without needing to explicitly request URLs one at a time and interpret the results manually.
+
+With this in mind, we've put together a simple guide that will get you started using the API for your own website. Once you've familiarized yourself with the process outlined below, you'll see how it can be used to analyze your site-speed at scale, keep track of how it's changing over time or even set up monitoring tools.
+
+This guide assumes some familiarity with scripting. Here we use Python to interface with the API and parse the results.
+<h2>Objectives</h2>
+In this post you will learn how to:
+<ol>
+ 	<li>Construct a Google Page Speed Insights API query</li>
+ 	<li>Make API requests for a table of URLs</li>
+ 	<li>Extract basic information from the API response</li>
+ 	<li>Run the given example script in Python</li>
+</ol>
+<h2>Getting set up</h2>
+There are a few steps you will need to follow before querying the Page Speed Insights API with Python.
+<ul>
+ 	<li><strong>API setup:</strong> Many Google APIs require API keys, passwords and other authentication measures. However, you don't require any of this to get started with the Google Page Speeds API!</li>
+ 	<li><strong><a href="https://www.python.org/downloads/">Python 3 </a>installation:</strong> If you've never used python before, we recommend getting started with the <a href="https://www.anaconda.com/distribution/" target="_blank" rel="noopener">Anaconda distribution</a> (Python 3.x version), which installs python along with popular data analysis libraries like Pandas.</li>
+</ul>
+<h2>Making the requests</h2>
+<h3>Basics of a request</h3>
+The API can be queried at this endpoint using GET requests:
+<pre class="language-python">GET https://www.googleapis.com/pagespeedonline/v5/runPagespeed</pre>
+We then add on additional <a href="https://developers.google.com/speed/docs/insights/v5/reference/pagespeedapi/runpagespeed">parameters</a> to specify the URL we want to find the page speed of and the device type to use, as shown below:
+<pre class="language-python">https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={url}&amp;strategy={device_type}</pre>
+When making requests, you should replace
+<pre>{url}</pre>
+with the URL-encoded page URL from your website, and
+<pre>{device_type}</pre>
+with with mobile or desktop, to specify the device type.
+<h3>Python packages</h3>
+In order to make requests, ingest them and then write the results to tables, we'll be using a few python libraries:
+<ul>
+ 	<li><strong>urllib</strong>: To make the HTTP requests.</li>
+ 	<li><strong>json</strong>: To parse and read the response objects.</li>
+ 	<li><strong>pandas</strong>: To save the results in CSV format.</li>
+</ul>
+<h3>Constructing the query</h3>
+To make an API request using Python, we can use the <code>urllib.request.urlopen</code> method:
+<pre class="language-python"><code>import urllib.request
+import urllib.parse
+
+url = 'http://www.example.com'
+escaped_url = urllib.parse.quote(url)
+device_type = 'mobile'
+
+# Construct request url
+contents = urllib.request.urlopen(
+    'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={}&amp;strategy={}'\
+    .format(escaped_url, device_type)
+).read().decode('UTF-8')</code></pre>
+This request should return a (surprisingly large) JSON response. We'll discuss this in more detail shortly.
+<h3>Making multiple queries</h3>
+A major selling point of this API is that it enables us to pull page speeds for batches of URLs. Let's take a look at how this can be done with Python.
+
+One option is to store the request parameters (<code>url</code> and <code>device_type</code>) in a CSV, which we can load into a Pandas DataFrame to iterate over. Notice below that each request, or unique <code>url</code> + <code>device_type</code> pair has its own row.
+<h4>Store data in CSV</h4>
+<pre class="language-python"><code>URL, device_type
+0, https://www.example.com, desktop
+1, https://www.example.com, mobile
+2, https://www.example.com/blog, desktop
+3, https://www.example.com/blog, mobile</code></pre>
+<h4>Load the CSV</h4>
+<pre class="language-python"><code>    import pandas as pd
+    df = pd.read_csv(url_file)
+</code></pre>
+Once we have a dataset with all the URLs to request, we can iterate through them and make an API request for each row. This is shown below:
+<pre class="language-python"><code>    import time
+
+    # This is where the responses will be stored
+    response_object = {}
+
+    # Iterating through df
+    for i in range(0, len(df)):
+
+        # Error handling
+        try:
+            print('Requesting row #:', i)
+
+            # Define the request parameters
+            url = df.iloc[i]['URL']
+            device_type = df.iloc[i]['device_type']
+
+            # Making request
+            contents = urllib.request.urlopen(
+                'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={}&amp;strategy={}'\
+                .format(url, device_type)
+            ).read().decode('UTF-8')
+
+            # Converts to json format
+            contents_json = json.loads(contents)
+
+            # Insert returned json response into response_object
+            response_object[device_type][url] = contents_json
+            print('Sleeping for 20 seconds between responses.')
+            time.sleep(20)
+
+
+        except Exception as e:
+            print('Error:', e)
+            print('Returning empty response for url:', url)
+            response_object[device_type][url] = {}
+</code></pre>
+<h2>Reading the response</h2>
+Before applying any filters or formatting on the data, we can first store the full responses for future use like this:
+<pre class="language-python">with open('data/{}-response.json'.format(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")), 'w') as outfile:
+
+    json.dump(response_object, outfile, indent=4)</pre>
+As mentioned above, each response returns a JSON object. They have many different properties relating to the given URL, and are far too large to decipher without filtering and formatting.
+
+To do this, we will be using the Pandas library, which makes it easy to extract the data we want in table format and export to CSV.
+
+This is the general structure of the response. The data on load times has been minimized due to its size.
+
+<p style="text-align: center;"><em>General response structure</em></p>
+Among other information, there are two major sources of page speed data included in the response: Lab data, stored in 'lighthouseResult' and Field data, stored in 'loadingExperience'. In this post, we'll be focusing on just Field data, which is crowd sourced based on real-world users on the Chrome browser.
+
+In particular, we are going to extract the following metrics:
+<ul>
+ 	<li><strong>Requested URL and Final URL</strong>
+<ul>
+ 	<li style="text-align: left;">We need both the Requested and Final resolved URL that was audited to make sure that they are the same. This will help us identify that the result came from the intended URL instead of a redirect.</li>
+ 	<li style="list-style-type: none;"></li>
+</ul>
+<p style="text-align: center;"><em>We can see that both URLs are the same in 'lighthouseResult' above.</em></p>
+</li>
+</ul>
+&nbsp;
+<ul>
+ 	<li><strong>First Contentful Paint</strong> (ms)
+<ul>
+ 	<li>This is the time between the user's first navigation to the page and when the browser first renders a piece of content, telling the user that the page is loading.</li>
+ 	<li>This metric is measured in milliseconds.</li>
+</ul>
+</li>
+ 	<li><strong>First Contentful Paint</strong> (proportions of slow, average, fast)
+<ul>
+ 	<li style="text-align: left;">This shows the percent of pages that have slow, average, and fast load times of First Contentful Paint.</li>
+ 	<li style="list-style-type: none;"></li>
+</ul>
+<p style="text-align: center;"><em>First Contentful Paint load time in milliseconds, labeled 'percentile', and proportion of slow, average, and fast.</em></p>
+</li>
+</ul>
+&nbsp;
+
+All these results can be extracted for either, or both, the mobile and desktop data.
+
+If we call our Pandas dataframe df_field_responses, here is how we would extract these properties:
+<pre class="language-python"><code>import pandas as pd
+
+# Specify the device_type (mobile or desktop)
+device_type = 'mobile'
+
+# Create dataframe to store responses
+df_field_responses = pd.DataFrame(
+    columns=['requested_url',
+             'final_url',
+             'FCM_ms',
+             'FCP_category',
+             'FCP_fast',
+             'FCP_avg',
+             'FCP_slow'
+    ]
+)
+
+for (url, i) in zip(
+    response_object[device_type].keys(),
+    range(0, len(df_field_responses))
+):
+
+    try:
+        print('Trying to insert response for url:', url)
+        # We reuse this below when selecting data from the response
+        fcp_loading = response_object[device_type][url]\
+            ['loadingExperience']['metrics']['FIRST_CONTENTFUL_PAINT_MS']
+
+        # URLs
+        df_field_responses.loc[i, 'requested_url'] =
+            response_object[device_type][url]['lighthouseResult']['requestedUrl']
+        df_field_responses.loc[i, 'final_url'] =
+            response_object[device_type][url]['lighthouseResult']['finalUrl']
+
+        # Loading experience: First Contentful Paint (ms)
+        df_field_responses.loc[i, 'FCP_ms'] = fcp_loading['percentile']
+        df_field_responses.loc[i, 'FCP_category'] = fcp_loading['category']
+
+        # Proportions: First Contentful Paint
+        df_field_responses.loc[i, 'FCP_fast'] =
+            fcp_loading['distributions'][0]['proportion']
+        df_field_responses.loc[i, 'FCP_avg'] =
+            fcp_loading['distributions'][1]['proportion']
+        df_field_responses.loc[i, 'FCP_slow'] =
+            fcp_loading['distributions'][2]['proportion']
+
+        print('Inserted for row {}: {}'.format(i, df_field_responses.loc[i]))
+
+    except:
+        print('Filling row with Error for row: {}; url: {}'.format(i, url))
+        # Fill in 'Error' for row if a field couldn't be found
+        df_field_responses.loc[i] = ['Error' for i in range(0, len(df_field_responses.columns))]</code></pre>
+Then to store the dataframe, df_field_responses, in a CSV:
+<pre class="language-python"><code>df_field_responses.to_csv('page_speeds_filtered_responses.csv', index=False)</code></pre>
+<h2>Running the scripts on GitHub</h2>
+The <a href="https://github.com/Ayima/page-speed-blog-post">repository</a> on GitHub contains instructions on how to run the files, but here is a quick breakdown.
+<ol>
+ 	<li>Before running the example scripts on GitHub, you will need to clone the repository.</li>
+ 	<li>Then create a CSV file with the URLs to query.</li>
+ 	<li>Fill in the config file with the URL file name.</li>
+ 	<li>Command to run the scripts:</li>
+</ol>
+<pre class="language-python"><code>python main.py --config-file config.json</code></pre>
+<h2>Something to keep in mind:</h2>
+<strong>The API has a limit as to how many requests you can make per day and per second.</strong>
+
+There are several ways to prepare for this including:
+<ul>
+ 	<li><strong>Error handling:</strong> Repeat requests that return an error</li>
+ 	<li><strong>Throttling:</strong> in your script to limit the number of requests sent per second, and re-requesting if a URL fails.</li>
+ 	<li>Get an <a href="https://developers.google.com/speed/docs/insights/v5/get-started">API key</a> if necessary (usually if you're making more than one query per second).</li>
+</ul>
+Hopefully after reading this guide you're able to get up and running with some basic querying of the Google Page Speed Insights API.
+
+<strong>Source Code: </strong>You can find the GitHub project with an example script to run <a href="https://github.com/Ayima/page-speed-blog-post">here</a>.
