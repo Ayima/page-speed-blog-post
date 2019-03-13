@@ -4,6 +4,7 @@ Please read the full blog post [here]().
 
 ## To run the scripts:
 1. Clone this repository.
+
     `git clone https://github.com/Ayima/page-speed-blog-post.git`
     
 2. Create a CSV file with the URLs you would like to run in this format:
