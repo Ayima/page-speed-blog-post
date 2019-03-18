@@ -7,8 +7,15 @@ Please read the full blog post [here]().
 1. Clone this repository.
 
     `git clone https://github.com/Ayima/page-speed-blog-post.git`
-    
-2. Create a CSV file with the URLs you would like to run in this format:
+
+2. Install required Python libraries.   
+ 
+```
+cd page-speed-blog-post
+pip install -r requirements.txt
+```
+   
+3. Create a CSV file with the URLs you would like to run in this format:
 
     | URL | device_type |
     ----- | :---------: |
@@ -17,8 +24,8 @@ Please read the full blog post [here]().
 
      *Note: This example only takes in `mobile` as a device type*
 
-3. Change the config.json file to reflect your URL file name.
-4. Run the script:
+4. Change the config.json file to reflect your URL file name.
+5. Run the script:
 
     `python main.py --config-file config.json`
     
