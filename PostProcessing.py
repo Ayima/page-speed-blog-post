@@ -1,10 +1,4 @@
 import pandas as pd
-import numpy as np
-import click
-import json
-import pprint
-from datetime import datetime
-from tqdm import tqdm_notebook, tqdm
 
 class ResponseTable:
 

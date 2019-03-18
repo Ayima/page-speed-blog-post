@@ -1,8 +1,4 @@
-import pandas as pd
-import numpy as np
 import click
-import time
-import psycopg2
 import json
 from RequestPageSpeeds import APIResponse
 from PostProcessing import ResponseTable
