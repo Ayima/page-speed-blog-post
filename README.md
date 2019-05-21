@@ -1,7 +1,7 @@
 # Getting Started With Google Page Speed Insights API
 This contains an example of how to query URLs using Google Page Speed Insights API.
 
-Please read the full blog post [here]().
+Please read the full blog post [here](https://www.ayima.com/blog/data-and-analytics/getting-started-with-google-page-speed-api.html).
 
 ## To run the scripts:
 1. Clone this repository.
