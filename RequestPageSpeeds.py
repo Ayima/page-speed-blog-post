@@ -35,7 +35,6 @@ class APIResponse:
                     escaped_url = urllib.parse.quote(url)
 
                     device_type = self.df_urls.iloc[i]['device_type']
-                    page_type = self.df_urls.iloc[i]['page_type']
 
                     contents = urllib.request.urlopen(
                         'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={}&strategy={}'\
@@ -46,8 +45,6 @@ class APIResponse:
 
                     # Insert returned json response into full contents
                     self.contents_obj[device_type][url] = contents_json
-                    # Insert page type for that url into full contents
-                    self.contents_obj[device_type][url]['page_type'] = page_type
 
                     success = True
 
